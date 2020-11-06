@@ -124,11 +124,5 @@
             android:layout_height="wrap_content"
             android:text="Get duration" />
 
-        <LinearLayout
-            android:id="@+id/layoutbarra"
-            android:layout_width="match_parent"
-            android:layout_height="62dp"
-            android:background="#F8C0C0"
-            android:orientation="vertical"></LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

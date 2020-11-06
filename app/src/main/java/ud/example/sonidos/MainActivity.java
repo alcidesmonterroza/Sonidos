@@ -1,8 +1,6 @@
 package ud.example.sonidos;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintSet;
-
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -31,8 +29,8 @@ public class MainActivity extends AppCompatActivity {
     private SeekBar volumen;
     private TextView total, hasonado, duracion;
     private ProgressBar mibarra;
-
-
+   // private Thread t;
+    static volatile boolean continuarhilo = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,11 +72,11 @@ public class MainActivity extends AppCompatActivity {
         duracion = findViewById(R.id.textView5);
 
 
-      //  setVolumeControlStream(AudioManager.STREAM_MUSIC); //con essta
+        setVolumeControlStream(AudioManager.STREAM_MUSIC); //con essta
 
         volumen = findViewById(R.id.seekBar2);
-      //  volumen.setMax(audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
-       // volumen.setProgress(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
+        volumen.setMax(audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+        volumen.setProgress(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
 
         volumen.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -105,8 +103,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
-
     public  void  suenaboton01(View v){ sPool.play(sound1,1,1,1,0,1); }
     public void suenaboton02(View v){sPool.play(sound2,1,1,1,2,1);}
     public  void  suenaboton05(View v){ sPool.play(sound3,1,1,1,0,1); }
@@ -114,14 +110,15 @@ public class MainActivity extends AppCompatActivity {
 
     //DETENER  REPRODUCIR MEDIAPLAYER
     public void detenerplayer(){
+
+        continuarhilo=false;
         player.stop();
+      //  player.release();
         //player=null;
-
-
         mibarra.setProgress(0);
         boton03.setText("Reproducir Mediaplayer");
         total.setText("Duración Total");
-        hasonado.setText("Ha Sonado");
+        hasonado.setText(" ");
         boton04.setEnabled(false);
         boton04.setText("Pausar");
 
@@ -129,13 +126,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void suenaboton03(View v){
 
-
-          if((player!=null && player.isPlaying())||(player!=null && player.isPlaying() )  ){
-
-                  detenerplayer();
+          if((player!=null && player.isPlaying() )){
+                 detenerplayer();
               }
-
-
 
           else{
                player = MediaPlayer.create(this,R.raw.pharrell_williams_happy);
@@ -148,40 +141,52 @@ public class MainActivity extends AppCompatActivity {
                boton04.setText("Pausar");
                boton04.setEnabled(true);
 
+
                player.start();
-               mibarra.setMax(player.getDuration());
+              if(player.getTrackInfo().length == player.getDuration()){
+                  detenerplayer();
+              }
 
-              // final int totalProgressTime = player.getDuration();
-             Thread t = new Thread(){
-                   boolean continuar = true;
-                   public void detenElHilo()
-                   {
-                       continuar=false;
-                   }
-                  @Override
+              mibarra.setMax(player.getDuration());
+
+             new Thread(){
+                 @Override
                    public void run() {
+
                       int totalProgressTime = player.getDuration();
-                       int jumpTime = 0;
+                      /* int jumpTime = 0;
 
-                      while(continuar) {
-                          while (jumpTime < totalProgressTime) {
-                              try {
-                                  jumpTime += 5;
-                                  duracion.setText(String.valueOf(jumpTime));
-                                  mibarra.setProgress(player.getCurrentPosition());
-                                  sleep(200);
+                      while(continuarhilo) {
+                         while (jumpTime < totalProgressTime) {
+                             try {
+                                 jumpTime += 5;
+                                 duracion.setText(String.valueOf(jumpTime));
+                                 mibarra.setProgress(player.getCurrentPosition());
+                                 sleep(200);
 
-                              } catch (InterruptedException e) {
-                                  //   Log.e(TAG, e.getMessage());
+                             } catch (InterruptedException e) {
+                                 //   Log.e(TAG, e.getMessage());
 
-                              }
-                          }
-                      }
+                             }
+                         }
+                     }*/
+
+                     while(continuarhilo) {
+                         while (player.getCurrentPosition() < totalProgressTime) {
+                             try {
+
+                                 duracion.setText(String.valueOf(player.getCurrentPosition()));
+                                 mibarra.setProgress(player.getCurrentPosition());
+                                 sleep(200);
+
+                             } catch (InterruptedException e) {
+                                 //   Log.e(TAG, e.getMessage());
+
+                             }
+                         }
+                     }
                    }
-               };
-
-
-               t.start();
+               }.start();
 
 
 

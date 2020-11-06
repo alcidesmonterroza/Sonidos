@@ -6,26 +6,29 @@ import android.widget.ProgressBar;
 
 import ud.example.sonidos.MainActivity;
 
-public class Hilo extends Thread {
+public class Hilo implements Runnable {
 
 
-    private boolean continuar = true;
+    private boolean continuar;
     //private ProgressBar mibarra;
     public MediaPlayer player;
     private AudioManager audioManager;
-
-
+    Thread t;
 
     public void detenElHilo()
     {
         continuar=false;
     }
-
-    // Metodo del hilo
-    public void run(MediaPlayer m, ProgressBar mibarra)
-    {
-
-        int jumpTime = 0;
+   // Metodo del hilo
+   Hilo()
+   {
+       t = new Thread(this);
+       continuar = true;
+       t.start(); // Starting the thread
+   }
+    @Override
+    public void run() {
+    /*    int jumpTime = 0;
 
         int totalProgressTime= m.getDuration();
 
@@ -42,8 +45,6 @@ public class Hilo extends Thread {
 
                 }
             }
-        }
+        }*/
     }
-
-
 }
